@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#gradient)" stroke="#fff" stroke-width="2"/>
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Lotto ball number -->
+  <text x="50" y="50" font-family="Arial, sans-serif" font-size="40" font-weight="bold" fill="white" text-anchor="middle" dominant-baseline="middle">7</text>
+  
+  <!-- Small stars for luck -->
+  <path d="M20 25 L22 30 L27 30 L23 33 L25 38 L20 35 L15 38 L17 33 L13 30 L18 30 Z" fill="#ffd700" opacity="0.8"/>
+  <path d="M75 20 L76.5 23 L80 23 L77 25 L78.5 28 L75 26 L71.5 28 L73 25 L70 23 L73.5 23 Z" fill="#ffd700" opacity="0.8"/>
+</svg>
