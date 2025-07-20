@@ -244,6 +244,63 @@
             }
         }
     </style>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0BWZ231611"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-0BWZ231611');
+        
+        // 페이지 로드 시간 측정
+        let pageLoadTime = Date.now();
+        
+        // 번호 생성 횟수 추적
+        let generateCount = 0;
+        
+        // 30초마다 체류 시간 이벤트 전송
+        setInterval(() => {
+            let timeSpent = Math.floor((Date.now() - pageLoadTime) / 1000);
+            gtag('event', 'time_on_page', {
+                'event_category': 'engagement',
+                'event_label': 'seconds',
+                'value': timeSpent
+            });
+        }, 30000);
+        
+        // 스크롤 깊이 추적
+        let scrollDepths = [25, 50, 75, 100];
+        let scrolledDepths = [];
+        
+        window.addEventListener('scroll', () => {
+            let scrollPercent = Math.round((window.scrollY + window.innerHeight) / document.documentElement.scrollHeight * 100);
+            
+            scrollDepths.forEach(depth => {
+                if (scrollPercent >= depth && !scrolledDepths.includes(depth)) {
+                    scrolledDepths.push(depth);
+                    gtag('event', 'scroll_depth', {
+                        'event_category': 'engagement',
+                        'event_label': depth + '%',
+                        'value': depth
+                    });
+                }
+            });
+        });
+        
+        // 페이지 이탈 추적
+        let isEngaged = false;
+        
+        window.addEventListener('beforeunload', () => {
+            let timeSpent = Math.floor((Date.now() - pageLoadTime) / 1000);
+            gtag('event', 'page_exit', {
+                'event_category': 'engagement',
+                'event_label': isEngaged ? 'engaged_user' : 'bounced_user',
+                'value': timeSpent,
+                'generate_count': generateCount
+            });
+        });
+    </script>
 </head>
 <body>
     <div class="container">
@@ -440,6 +497,16 @@
             const numbers = [];
             const lottoNumbersDiv = document.getElementById('lottoNumbers');
             
+            // 번호 생성 횟수 증가 및 GA 이벤트 전송
+            generateCount++;
+            isEngaged = true; // 사용자가 버튼을 클릭했으므로 engaged
+            
+            gtag('event', 'generate_numbers', {
+                'event_category': 'lotto',
+                'event_label': 'button_click',
+                'value': generateCount
+            });
+            
             // 1-45 중 6개 번호 랜덤 선택
             while (numbers.length < 6) {
                 const num = Math.floor(Math.random() * 45) + 1;
@@ -451,6 +518,17 @@
             // 오름차순 정렬
             numbers.sort((a, b) => a - b);
             
+            // 생성된 번호 범위 분석 및 GA 이벤트
+            let lowCount = numbers.filter(n => n <= 15).length;
+            let midCount = numbers.filter(n => n > 15 && n <= 30).length;
+            let highCount = numbers.filter(n => n > 30).length;
+            
+            gtag('event', 'number_pattern', {
+                'event_category': 'lotto',
+                'event_label': `low:${lowCount}_mid:${midCount}_high:${highCount}`,
+                'value': generateCount
+            });
+            
             // 애니메이션과 함께 표시
             lottoNumbersDiv.innerHTML = '';
             numbers.forEach((num, index) => {
@@ -461,11 +539,45 @@
                     lottoNumbersDiv.appendChild(ball);
                 }, index * 100);
             });
+            
+            // 5번, 10번, 20번 생성 시 특별 이벤트
+            if ([5, 10, 20, 50].includes(generateCount)) {
+                gtag('event', 'milestone_reached', {
+                    'event_category': 'engagement',
+                    'event_label': `generated_${generateCount}_times`,
+                    'value': generateCount
+                });
+            }
         }
         
         // 페이지 로드 시 자동으로 한 번 생성
         window.addEventListener('load', () => {
-            setTimeout(generateLottoNumbers, 500);
+            // 첫 방문 추적
+            gtag('event', 'page_view_detail', {
+                'event_category': 'navigation',
+                'event_label': 'initial_load',
+                'page_title': document.title
+            });
+            
+            setTimeout(() => {
+                generateLottoNumbers();
+                // 자동 생성은 카운트에서 제외
+                generateCount = 0;
+            }, 500);
+        });
+        
+        // 클릭 가능한 요소들에 대한 추적
+        document.addEventListener('DOMContentLoaded', () => {
+            // 외부 링크 클릭 추적
+            document.querySelectorAll('a[href^="http"]').forEach(link => {
+                link.addEventListener('click', (e) => {
+                    gtag('event', 'external_link_click', {
+                        'event_category': 'navigation',
+                        'event_label': link.href,
+                        'transport_type': 'beacon'
+                    });
+                });
+            });
         });
     </script>
 </body>
